@@ -1,7 +1,6 @@
-Посмотрите код страницы и вывод в консоль браузера.
+<!--Посмотрите код страницы и вывод в консоль браузера.-->
 
 <script src="shri-async-hw.js"></script>
-
 <script>
     const {
         AsyncArray,
@@ -16,18 +15,6 @@
         sqrt
     } = Homework;
 
-    /*
-        D = b 2 – 4ac ;
-        если   D < 0 ,   то квадратное уравнение не имеет корней ;
-        если   D = 0 ,   то квадратное уравнение имеет один корень   x = –b 2a;
-        если   D > 0 ,   то квадратное уравнение имеет два корня
-
-
-        x1 = –b + √ D / 2a
-        x2 = –b − √ D / 2a
-
-     */
-
     function square(a,b,c, cb) {
         if(!Number.isInteger(a) || !Number.isInteger(b) || !Number.isInteger(c) ) {
             console.error('Не числовые аргументы')
@@ -36,18 +23,55 @@
 
         const as = new AsyncArray();
 
-        let argA = new Promise((resolve, reject) => {
-            as.push(a, () => resolve(a))
-        })
-        let argB = new Promise((resolve, reject) => {
-            as.push(b, () => resolve(b))
-        })
-        let argC = new Promise((resolve, reject) => {
-            as.push(c, () => resolve(c))
-        });
+        const asyncAddArgument = (arg) => {
+            let maxTime = 10000 // максимальное время ожидания
+            return new Promise((resolve, reject) => {
+                as.push(arg, () => resolve(arg))
+                setTimeout(() => {
+                    reject(arg)
+                }, maxTime)
+            })
+        }
 
-        const argAll = Promise.all([argA, argB, argC])
-                    .then(value => console.log(value))
+        let argA = asyncAddArgument(a)
+        let argB = asyncAddArgument(b)
+        let argC = asyncAddArgument(c)
+
+
+
+        /*
+            D = b^2 – 4ac ;
+            если   D < 0 ,   то квадратное уравнение не имеет корней ;
+            если   D = 0 ,   то квадратное уравнение имеет один корень   x = –b 2a;
+            если   D > 0 ,   то квадратное уравнение имеет два корня
+
+
+            x1 = –b + √ D / 2a
+            x2 = –b − √ D / 2a
+
+         */
+        //Promise.allSettled([promise1, promise2])
+        // возвращает промис, который исполняется когда все полученные промисы завершены (исполнены или отклонены)
+
+
+    const argAll = Promise.all([argA, argB, argC])
+        .then(([a, b, c]) => { // all arguments
+
+            // подготовка значений для D
+            let firstMember = new Promise(((resolve, reject) => multiply(b, b, (res) => resolve(res))))
+            let secondMember = new Promise(((resolve, reject) => multiply(a, c, (res) => resolve(res))))
+                                    .then(value => new Promise(((resolve, reject) => multiply(value, 4, (res) => resolve(res)))));
+
+
+            Promise.all([firstMember, secondMember])
+            .then(([f, s]) => console.log(f - s))
+
+
+        })
+                    // .then(([a,b,c]) => {
+                    //
+                    // })
+                    .catch(err => console.error(err))
 
 
 
