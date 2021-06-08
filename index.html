@@ -15,75 +15,69 @@
         sqrt
     } = Homework;
 
-    function square(a,b,c, cb) {
-        if(!Number.isInteger(a) || !Number.isInteger(b) || !Number.isInteger(c) ) {
-            console.error('Не числовые аргументы')
-            return
-        }
+    function square(a,b,c, resultCallback) {
+      if(!Number.isInteger(a) || !Number.isInteger(b) || !Number.isInteger(c) ) {
+        console.error('Не числовые аргументы')
+        return
+      }
 
-        const as = new AsyncArray();
+      const as = new AsyncArray();
+      const asyncAddArgument = (arg) => {
+          let maxTime = 10000 // максимальное время ожидания
+          return new Promise((resolve, reject) => {
+              as.push(arg, () => resolve(arg))
+              setTimeout(() => {
+                  reject(arg)
+              }, maxTime)
+          })
+      }
 
-        const asyncAddArgument = (arg) => {
-            let maxTime = 10000 // максимальное время ожидания
-            return new Promise((resolve, reject) => {
-                as.push(arg, () => resolve(arg))
-                setTimeout(() => {
-                    reject(arg)
-                }, maxTime)
-            })
-        }
-
-        let argA = asyncAddArgument(a)
-        let argB = asyncAddArgument(b)
-        let argC = asyncAddArgument(c)
-
+      let argA = asyncAddArgument(a)
+      let argB = asyncAddArgument(b)
+      let argC = asyncAddArgument(c)
 
 
-        /*
-            D = b^2 – 4ac ;
-            если   D < 0 ,   то квадратное уравнение не имеет корней ;
-            если   D = 0 ,   то квадратное уравнение имеет один корень   x = –b 2a;
-            если   D > 0 ,   то квадратное уравнение имеет два корня
+      /*
+          D = b^2 – 4ac ;
+          если   D < 0 ,   то квадратное уравнение не имеет корней ;
+          если   D = 0 ,   то квадратное уравнение имеет один корень   x = –b 2a;
+          если   D > 0 ,   то квадратное уравнение имеет два корня
 
 
-            x1 = –b + √ D / 2a
-            x2 = –b − √ D / 2a
+          x1 = –b + √ D / 2a
+          x2 = –b − √ D / 2a
 
-         */
-        //Promise.allSettled([promise1, promise2])
-        // возвращает промис, который исполняется когда все полученные промисы завершены (исполнены или отклонены)
+       */
+      //Promise.allSettled([promise1, promise2])
+      // возвращает промис, который исполняется когда все полученные промисы завершены (исполнены или отклонены)
 
 
     const argAll = Promise.all([argA, argB, argC])
-        .then(([a, b, c]) => { // all arguments
+      .then(([a, b, c]) => { // all arguments
 
-            // подготовка значений для D
-            let firstMember = new Promise(((resolve, reject) => multiply(b, b, (res) => resolve(res))))
-            let secondMember = new Promise(((resolve, reject) => multiply(a, c, (res) => resolve(res))))
-                                    .then(value => new Promise(((resolve, reject) => multiply(value, 4, (res) => resolve(res)))));
+        // подготовка значений для D
+        let firstMember = new Promise(((resolve) => multiply(b, b, (res) => resolve(res))))
+        let secondMember = new Promise(((resolve) => multiply(a, c, (res) => resolve(res))))
+                                .then(value => new Promise(((resolve) => multiply(value, 4, (res) => resolve(res)))));
 
-
-            Promise.all([firstMember, secondMember])
-            .then(([f, s]) => console.log(f - s))
-
-
-        })
-                    // .then(([a,b,c]) => {
-                    //
-                    // })
-                    .catch(err => console.error(err))
+        // D = b^2 – 4ac
+        Promise.all([firstMember, secondMember])
+          .then(([f, s]) => f - s)
+          .then(value => {
+              new Promise((resolve => less(value, 0, (res) => resolve(res))))
+              .then(res => {
+                  if(res) throw Error(`D = ${value}, уравнение не имеет решений.`)
+              }).catch(err => console.error(err))
 
 
 
-
-
-
-
-
-        // let d = (parseInt(a) * 2) - (4 * parseInt(a) * parseInt(c))
+          })
+          .catch(err => console.log(err))
+      })
+      .catch(err => console.error(err))
     }
 
-    square(1,2,4, (x1, x2) => {
+    square(1, 2, 4, (x1, x2) => {
         console.log(`x1 = ${x1}, x2 = ${x2}`)
     })
 
