@@ -36,48 +36,76 @@
       let argB = asyncAddArgument(b)
       let argC = asyncAddArgument(c)
 
+      let calcX = (operation, a, b, c, discriminant) => { // поиск x
+        let resB = new Promise(((resolve) => multiply(b, -1, (res) => resolve(res)))) // –b
+        let resSquare = new Promise(((resolve) => sqrt(discriminant, (res) => resolve(res)))); // √ D
+        let resLastMember =  new Promise(((resolve) => multiply(2, a, (res) => resolve(res)))) // 2a
 
-      /*
-          D = b^2 – 4ac ;
-          если   D < 0 ,   то квадратное уравнение не имеет корней ;
-          если   D = 0 ,   то квадратное уравнение имеет один корень   x = –b 2a;
-          если   D > 0 ,   то квадратное уравнение имеет два корня
+        return Promise.all([resB, resSquare, resLastMember])// ждем все расчеты
+          .then(([resB, resSquare, resLastMember]) => {
+              if(operation === '-') {
+                  return (resB - resSquare) / resLastMember
+              } else{
+                  return (resB + resSquare) / resLastMember
+              }
+          }).catch(err => console.error(err))
 
 
-          x1 = –b + √ D / 2a
-          x2 = –b − √ D / 2a
+        // add +, divide /
 
-       */
-      //Promise.allSettled([promise1, promise2])
-      // возвращает промис, который исполняется когда все полученные промисы завершены (исполнены или отклонены)
+        // –b + √ D / 2a
+      }
 
-
-    const argAll = Promise.all([argA, argB, argC])
+      Promise.all([argA, argB, argC])
       .then(([a, b, c]) => { // all arguments
 
         // подготовка значений для D
         let firstMember = new Promise(((resolve) => multiply(b, b, (res) => resolve(res))))
         let secondMember = new Promise(((resolve) => multiply(a, c, (res) => resolve(res))))
-                                .then(value => new Promise(((resolve) => multiply(value, 4, (res) => resolve(res)))));
+                           .then(value => new Promise(((resolve) => multiply(value, 4, (res) => resolve(res)))));
 
         // D = b^2 – 4ac
+
         Promise.all([firstMember, secondMember])
-          .then(([f, s]) => f - s)
-          .then(value => {
-              new Promise((resolve => less(value, 0, (res) => resolve(res))))
-              .then(res => {
-                  if(res) throw Error(`D = ${value}, уравнение не имеет решений.`)
-              }).catch(err => console.error(err))
-
-
-
+          .then(([f, s]) => { // разность
+              return new Promise(((resolve) => subtract(f, s, (res) => resolve(res))))
           })
-          .catch(err => console.log(err))
-      })
-      .catch(err => console.error(err))
+          .then(discriminant => { // работа с результатом
+            const resLess = new Promise(((resolve) => less(discriminant, 0, (res) => resolve(res)))) // <
+            const resEqual = new Promise(((resolve) => equal(discriminant, 0, (res) => resolve(res)))) // ==
+
+            Promise.all([resLess, resEqual])// ждем оба сравнения
+              .then(([resLess, resEqual ]) => {
+                  // console.log(resLess, resEqual)
+
+                  if (resLess) {
+
+                      //return throw Error(``)
+                  }
+
+                  if (resEqual) {
+
+                      // return resultCallback() или throw Error()
+                  }
+
+                  calcX('-', a, b, c, discriminant) //
+                  calcX('+', a, b, c, discriminant) //
+
+                  let x1 =  calcX('-', a, b, c, discriminant)
+                  let x2 = calcX('+', a, b, c, discriminant)
+
+
+                  resultCallback(x1, x2)
+                  // resultCallback(res1, res2)
+
+
+
+              }).catch(err => console.error(err, 3))
+          }).catch(err => console.error(err, 2))
+        }).catch(err => console.error(err, 1))
     }
 
-    square(1, 2, 4, (x1, x2) => {
+    square(1, 1, -6, (x1, x2) => {
         console.log(`x1 = ${x1}, x2 = ${x2}`)
     })
 
