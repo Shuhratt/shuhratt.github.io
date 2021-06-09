@@ -117,11 +117,25 @@
 
 <script>
     Promise._any = function (arr) {
+        let successPromise = null
+
+        arr.map((promise) => {
+
+        })
+
 
         let promise = new Promise(((resolve, reject) => {
             if(arr.length <= 0) {
                 reject('Пустой')
+                return
             }
+
+
+
+
+
+
+
 
         }))
 
@@ -133,9 +147,9 @@
 
     console.log(
         Promise._any([
-          new Promise( ((resolve, reject) => setTimeout(()=> reject(3), 30))),
-          new Promise( ((resolve, reject) => setTimeout(()=> resolve(1), 10))),
-          new Promise( ((resolve, reject) => setTimeout(()=> resolve(2), 20))),
+          new Promise( ((_, reject) => setTimeout(()=> reject(3), 30))),
+          new Promise( ((resolve, reject) => setTimeout(()=> resolve(1), 100))),
+          new Promise( ((resolve, reject) => setTimeout(()=> resolve(2), 200))),
         ]
     ))
 
