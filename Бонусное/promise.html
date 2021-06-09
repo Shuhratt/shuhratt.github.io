@@ -1,0 +1,68 @@
+<script>
+    Promise._any = function (promisess) {
+        let successPromise = null
+
+        promisess.map((pro) => {
+            Promise.resolve(pro).then()
+        })
+
+
+        return  promisess
+    }
+    // console.log(
+    //     Promise._any([
+    //             new Promise( ((_, reject) => setTimeout(()=> reject(3), 30))),
+    //             new Promise( ((resolve) => setTimeout(()=> resolve(1), 100))),
+    //             new Promise( ((resolve) => setTimeout(()=> resolve(2), 200))),
+    //         ]
+    //     ))
+
+    // _____________
+
+    Promise._allSettled = function (promise) {
+
+        let map = promise.map((p) => {
+            let res = {}
+            p.then(item => {
+                res.status = 'fulfilled';
+                res.value =  item
+            })
+            .catch(err => {
+                res.status = 'rejected';
+                res.reason =  err
+            })
+            return res
+        })
+
+        return Promise.resolve(map)
+
+        // { status: 'fulfilled', value: 3} выполнено
+        // { status: 'rejected ', reason: 3} отклонено
+
+    }
+
+    console.log(
+        Promise._allSettled([
+                new Promise( ((_, reject) => setTimeout(()=> reject(3), 2000))),
+                new Promise( ((resolve) => setTimeout(()=> resolve(1), 100))),
+                new Promise( ((resolve) => setTimeout(()=> resolve(2), 200))),
+            ]
+        ).then(arr => console.log(arr))
+    )
+
+
+    //_______
+
+    Promise.prototype._finally = function (cb) {
+      cb()
+      return this
+    }
+
+    Promise.resolve(6)
+        ._finally(function() {
+            console.log('this will always be called');
+        })
+        .then(val => console.log(val))
+
+
+</script>

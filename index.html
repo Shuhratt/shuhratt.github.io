@@ -52,7 +52,6 @@
         // add +, divide /
 
       }
-
       let calcX = (a, b) => { // –b/2a
           let resB = new Promise(((resolve) => multiply(b, -1, (res) => resolve(res)))) // –b
           let resLastMember =  new Promise(((resolve) => multiply(2, a, (res) => resolve(res)))) // 2a
@@ -91,6 +90,7 @@
                           console.info(`d = ${discriminant} `)
                           return
                       }
+
                       calcTwoSquareRoots(a, b, c, discriminant).then(([x1, x2]) => resultCallback(x1, x2))
                   } else {
                       resultCallback(null, null)
