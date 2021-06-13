@@ -1,54 +1,56 @@
 <script>
-    Promise._any = function (promisess) {
-        let successPromise = null
+    Promise._any = function (promises) {
+        const stack = []
+        let isResolved = false
 
-        promisess.map((pro) => {
-            Promise.resolve(pro).then()
-        })
+        for(let prop of promises){
+
+            if(isResolved === false) {
+                prop.then(item => {
+                    isResolved = true
+                }).catch(err => console.error(err))
+
+            }
 
 
-        return  promisess
+        }
+        console.log(stack, isResolved)
+        return Promise.resolve([...stack])
     }
-    // console.log(
-    //     Promise._any([
-    //             new Promise( ((_, reject) => setTimeout(()=> reject(3), 30))),
-    //             new Promise( ((resolve) => setTimeout(()=> resolve(1), 100))),
-    //             new Promise( ((resolve) => setTimeout(()=> resolve(2), 200))),
-    //         ]
-    //     ))
+
+    Promise._any([
+            new Promise(((_, reject) => setTimeout(() => reject(1), 1000))),
+            new Promise(((resolve) => setTimeout(() => resolve(2), 2000))),
+            new Promise(((resolve) => setTimeout(() => resolve(3), 2500))),
+        ]
+    ).then(res => console.log(res))
 
     // _____________
 
     Promise._allSettled = function (promise) {
-
         let map = promise.map((p) => {
-            let res = {}
-            p.then(item => {
-                res.status = 'fulfilled';
-                res.value =  item
+            return p.then(item => {
+                return { status: 'fulfilled', value:  item }
             })
             .catch(err => {
-                res.status = 'rejected';
-                res.reason =  err
+                return { status: 'rejected', reason:  err }
             })
-            return res
         })
 
-        return Promise.resolve(map)
+        return Promise.all([...map])
 
         // { status: 'fulfilled', value: 3} выполнено
         // { status: 'rejected ', reason: 3} отклонено
 
     }
 
-    console.log(
-        Promise._allSettled([
-                new Promise( ((_, reject) => setTimeout(()=> reject(3), 2000))),
-                new Promise( ((resolve) => setTimeout(()=> resolve(1), 100))),
-                new Promise( ((resolve) => setTimeout(()=> resolve(2), 200))),
-            ]
-        ).then(arr => console.log(arr))
-    )
+      Promise._allSettled([
+              new Promise( ((_, reject) => setTimeout(()=> reject(3), 5000))),
+              new Promise( ((resolve) => setTimeout(()=> resolve(1), 100))),
+              new Promise( ((resolve) => setTimeout(()=> resolve(2), 200))),
+          ]
+      ).then(arr => console.log(arr))
+
 
 
     //_______
