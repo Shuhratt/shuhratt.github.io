@@ -15,6 +15,15 @@
         sqrt
     } = Homework;
 
+    function exec(fn, ...arg) {
+      return new Promise(((resolve) => {
+          fn(...arg, resolve)
+      }))
+    }
+
+
+
+
     function square(a,b,c, resultCallback) {
       if(!Number.isInteger(a) || !Number.isInteger(b) || !Number.isInteger(c) ) {
         console.error('Не числовые аргументы')
@@ -73,9 +82,11 @@
         let secondMember = new Promise(((resolve) => multiply(a, c, (res) => resolve(res))))
                            .then(value => new Promise(((resolve) => multiply(value, 4, (res) => resolve(res)))));
 
+
         // D = b^2 – 4ac
         Promise.all([firstMember, secondMember])
           .then(([f, s]) => { // разность
+              console.log(f, s)
               return new Promise(((resolve) => subtract(f, s, (res) => resolve(res))))
           })
           .then(discriminant => { // работа с результатом
